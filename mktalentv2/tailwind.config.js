@@ -10,6 +10,10 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+        serif: ['ui-serif', 'Georgia', ],
+      mono: ['ui-monospace', 'SFMono-Regular',],
+      display: ['Oswald',],
+      body: ['"Open Sans"',],
       },
        keyframes: {
         float: {
