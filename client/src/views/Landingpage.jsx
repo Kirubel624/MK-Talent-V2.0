@@ -1,18 +1,78 @@
 import React from 'react'
 import LandingPageLayout from '../components/common/LandingPageLayout'
 import Footer from '../components/common/Footer'
+import {LikeFilled, HeartFilled, SendOutlined, TrophyFilled } from '@ant-design/icons'
 
 const Landingpage = () => {
   return (
     <div className='w-full'>
-      <LandingPageLayout heading="MK-Talent: Your Ultimate Choice for Opportunities and Growth!"
-      paragraph="We provide many ways for you to get yourself out there and introduce yourself to the world. 
+       <div className={`flex flex-row w-full justify-between items-center px-10 py-24 boder-2 boder-green-900`}>
+      <div className='flex flex-col justify-start w-1/2 boder-2 boder-green-900 px-12'>
+        <h1 className='font-bold text-4xl pb-4 leading-normal'>MK-Talent: Your Ultimate Choice for Opportunities and Growth!</h1>
+        <p className='text-base pb-4 text-gray-600'>We provide many ways for you to get yourself out there and introduce yourself to the world. 
       Join us and make your work opportunity a little Easier! Grow your portfolio by doing jobs,
-      participating in events and getting rewards."
-      buttonText="Get started" buttonStyle="bg-[#6D77CB] w-1/2 rounded text-white px-4 py-2"
-       imgURL="https://res.cloudinary.com/dvqawl4nw/image/upload/v1700075875/gp3oc76tnjd7qukbubp0.png"
-       imageWidth={250}
-       />
+      participating in events and getting rewards.</p>
+        <button className="bg-[#6D77CB] w-1/2 rounded text-white px-4 py-2">Get started</button>
+      </div>
+      <div className="w-1/2  flex items-end justify-center boder borer-red-900">
+      <div className="boder-2 boder-green-900 relative">
+        <img
+          src="https://res.cloudinary.com/dvqawl4nw/image/upload/v1700505124/izz2e3bwutut8qzjdtuh.png"
+          className=""
+          width={400}
+          alt="Layoutimage"
+        />
+        <div className="absolute top-40 left-[-100px] drop-shadow-lg shadow shadow-gray-200 bg-white text-black p-5 cursor-pointer transition-opacity duration-300 group-hover:opacity-100 rounded">
+          <p className='font-medium'>Chats</p>
+        
+          <div className="bg-white py-3 mb- rounded-md -md flex items-center">
+          <img className='rounded-full w-7 h-7 object-cover mr-4' src='https://res.cloudinary.com/dvqawl4nw/image/upload/v1700505745/xhttod29hkgutblplc8a.avif'   alt="User Avatar"/>
+      <div>
+        <p className="text-xs font-semibold">John Doe</p>
+        <p className="text-gray-500 text-xs">Lorem ipsum dolor...</p>
+      </div>
+    </div>
+          <div className="bg-white py-3 mb- rounded-md -md flex items-center">
+      <img
+        src="https://res.cloudinary.com/dvqawl4nw/image/upload/v1700505745/xhttod29hkgutblplc8a.avif" // Replace with the actual URL of the profile picture
+        alt="User Avatar"
+        className="w-7 h-7 object-cover rounded-full mr-4"
+      />
+      <div>
+        <p className="text-xs font-semibold">John Doe</p>
+        <p className="text-gray-500 text-xs">Lorem ipsum dolor...</p>
+      </div>
+    </div>
+          <div className="bg-white py-3 mb- rounded-md -md flex items-center">
+      <img
+        src="https://res.cloudinary.com/dvqawl4nw/image/upload/v1700505745/xhttod29hkgutblplc8a.avif" // Replace with the actual URL of the profile picture
+        alt="User Avatar"
+        className="w-7 h-7 object-cover rounded-full mr-4"
+      />
+      <div>
+        <p className="text-xs font-semibold">John Doe</p>
+        <p className="text-gray-500 text-xs">Lorem ipsum dolor...</p>
+      </div>
+    </div>
+    <div className=" pt-4 flex items-center">
+      <input
+        type="text"
+        disabled
+        placeholder="Type your message..."
+        className="flex-1 p-2 border-[1px] bg-gray-100 border-gray-300 rounded-l-full focus:outline-none focus:border-[#6D77CB] text-xs"
+      />
+      <button className="bg-[#6D77CB] border-[1px] border-[#6D77CB] text-white px-2 py-2 rounded-r-full flex justify-center"><SendOutlined/></button>
+    </div>
+        </div>
+        <div className="absolute drop-shadow-md bottom-10 right-10 bg-white text-black py-2 px-4 cursor-pointer transition-opacity duration-300 group-hover:opacity-100 rounded">
+          <span className='flex flex-row items-center'><HeartFilled className='text-red-500 pr-2'/>1K</span> 
+        </div>
+        <div className="absolute drop-shadow-md top-[5rem] right-10 bg-white text-black py-2 px-4 cursor-pointer transition-opacity duration-300 group-hover:opacity-100 rounded">
+          <span className='flex flex-row items-center'><TrophyFilled className='text-[#FFD700] pr-2'/>Rewards</span> 
+        </div>
+      </div>
+    </div>
+    </div>
       <LandingPageLayout heading="Now is your moment to build a better tomorrow"
       paragraph="We’ve seen what the future can be. Now it’s time to decide what it will be."
       direction='row-reverse'
@@ -68,9 +128,9 @@ const Landingpage = () => {
 
   {/* SVG Background */}
   <svg
-      className="absolute flex justify-end items-end inset-x-0 bottom-0 w-full h-full z-[-1] boder boder-red-900"
+      className="absolute flex justify-end items-end inset-x-0 bottom-0 w-full h-full z-[-1] "
 
-  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100"><path fill="#6D77CB" fill-opacity="1" d="M0,96L21.8,90.7C43.6,85,87,75,131,112C174.5,149,218,235,262,229.3C305.5,224,349,128,393,80C436.4,32,480,32,524,64C567.3,96,611,160,655,170.7C698.2,181,742,139,785,106.7C829.1,75,873,53,916,42.7C960,32,1004,32,1047,53.3C1090.9,75,1135,117,1178,133.3C1221.8,149,1265,139,1309,117.3C1352.7,96,1396,64,1418,48L1440,32L1440,320L1418.2,320C1396.4,320,1353,320,1309,320C1265.5,320,1222,320,1178,320C1134.5,320,1091,320,1047,320C1003.6,320,960,320,916,320C872.7,320,829,320,785,320C741.8,320,698,320,655,320C610.9,320,567,320,524,320C480,320,436,320,393,320C349.1,320,305,320,262,320C218.2,320,175,320,131,320C87.3,320,44,320,22,320L0,320Z"></path></svg>
+  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 25"><path fill="#6D77CB" fill-opacity="1" d="M0,96L21.8,90.7C43.6,85,87,75,131,112C174.5,149,218,235,262,229.3C305.5,224,349,128,393,80C436.4,32,480,32,524,64C567.3,96,611,160,655,170.7C698.2,181,742,139,785,106.7C829.1,75,873,53,916,42.7C960,32,1004,32,1047,53.3C1090.9,75,1135,117,1178,133.3C1221.8,149,1265,139,1309,117.3C1352.7,96,1396,64,1418,48L1440,32L1440,320L1418.2,320C1396.4,320,1353,320,1309,320C1265.5,320,1222,320,1178,320C1134.5,320,1091,320,1047,320C1003.6,320,960,320,916,320C872.7,320,829,320,785,320C741.8,320,698,320,655,320C610.9,320,567,320,524,320C480,320,436,320,393,320C349.1,320,305,320,262,320C218.2,320,175,320,131,320C87.3,320,44,320,22,320L0,320Z"></path></svg>
 
   <h1 className='text-4xl font-bold text-center text-[#6D77CB]'>MK-Talent Developers</h1>
   <div className='flex flex-row justify-evenly items-center pt-10'>
