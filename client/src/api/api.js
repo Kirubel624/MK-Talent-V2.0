@@ -1,6 +1,12 @@
 import axios from "axios";
 import TokenService from "./token.service";
 
+import { message } from 'antd';
+
+const handleErrorResponse = (errorMessage) => {
+  message.error(errorMessage);
+};
+
 const instance = axios.create({
   baseURL: "http://localhost:8000/api/v1",
   headers: {
@@ -38,6 +44,9 @@ instance.interceptors.response.use(
   async (err) => {
     const originalConfig = err.config;
     
+    console.log("err",err.response.data.message||err.message)
+    console.log("err",err.request)
+    handleErrorResponse(err.response.data.message||err.message)
     
     // console.log("auth",originalConfig.url)
     if (originalConfig.url !== "/auth/signin" && err.response) {

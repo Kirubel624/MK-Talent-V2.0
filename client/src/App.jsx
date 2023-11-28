@@ -1,40 +1,42 @@
-import { useState,useEffect } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
+
 import './App.css'
-import { Route, Routes } from 'react-router-dom'
-import Landingpage from './views/Landingpage'
-import NavBar from './components/common/NavBar'
-import axios from 'axios';
+import { Route, Routes, useLocation } from 'react-router-dom'
+
 import api from './api/api';
-import {useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { login } from './redux/auth/authSlice';
+import AppRoute from './app-routing'
 function App() {
-// const [count, setCount] = useState(0);
-const dispatch = useDispatch();
-let c = 0
+  const location = useLocation()
+  const dispatch = useDispatch();
+  let c = 0
 
-console.log("app ------------")
+  console.log("app ------------")
 
-async function  clickMe(){
-  const data = await api.get('/auth')
-  console.log("data",data)
-}
-const loginHandler = async()=>{
-  const res = dispatch(login({}))
-}
+  async function clickMe() {
+    try{
+      const data = await api.get('/auth1')
+    console.log("data", data)
+
+    }catch(err){
+
+    }
+  }
+  const loginHandler = async () => {
+    const res = dispatch(login({}))
+  }
+
   return (
-    <div className='boder boder-purple-900 w-full'>
-    <NavBar/>
-    <Routes>
-      <Route element={<Landingpage/>} path='/'/> 
-    </Routes>
-    {/* <div>
+    <div className='w-full'>
+{/* <div>
         <button onClick={clickMe} >Click me</button>
         <button onClick={loginHandler} >login</button>
       
 
         </div> */}
+      <AppRoute />
+
+      
     </div>
   )
 }

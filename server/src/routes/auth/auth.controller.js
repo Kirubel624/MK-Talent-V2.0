@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken");
 const AppErorr = require("../../utils/appError");
 const catchAsync = require("../../utils/catchAsync");
 const { promisify } = require("util");
-const Permission = require('../../models/permissionModel');
 const Role = require("../../models/roleModel");
+const Permission = require("../../models/permissionModel");
 const RolePermission = require("../../models/rolePermissionModel");
 
 
@@ -14,6 +14,7 @@ const getToken = (username) => {
     expiresIn: "30m",
   });
 };
+
 const getRefreshToken = (username) => {
   return jwt.sign({ name: username }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: "60m",
@@ -21,46 +22,43 @@ const getRefreshToken = (username) => {
 };
 
 
-exports.refreshToken = catchAsync(async (req,res)=>{
+// update access toekn using refration token
+const refreshToken = catchAsync(async (req, res) => {
   const Rtoken = req.body.refreshToken
 
   if (Rtoken == null) return res.sendStatus(401)
-  const refreshToken = await RefreshToken.findOne({token:Rtoken})
+  const refreshToken = await RefreshToken.findOne({ token: Rtoken })
 
   if (!refreshToken) return res.sendStatus(401)
 
   const decoded = await promisify(jwt.verify)(Rtoken, process.env.REFRESH_TOKEN_SECRET);
-  console.log(decoded)
 
-  // jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET,(err,user)=>{
-  //  if (err) return res.sendStatus(403)
-  
-  
-   const refreshToken1 =  getRefreshToken(decoded.name)
+  const refreshToken1 = getRefreshToken(decoded.name)
 
-   const accessToken= getToken(decoded.name)
-   const updateRefreshToken = await RefreshToken.findOneAndUpdate({username:decoded.name},{token:refreshToken1})
+  const accessToken = getToken(decoded.name)
+  const updateRefreshToken = await RefreshToken.findOneAndUpdate({ username: decoded.name }, { token: refreshToken1 })
 
-   res.json({accessToken,refreshToken:refreshToken1})
-// })
+  res.json({ accessToken, refreshToken: refreshToken1 })
+
 });
 
-exports.signup = catchAsync(async (req, res, next) => {
+
+
+const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
-  
+
   const data = {
     username: newUser.username,
     user: newUser._id,
   };
-//   const profile = await Profile.create(data);
-  
+
   const token = getToken(newUser.username);
-  const refreshToken= getRefreshToken(newUser.username)
-  
-  const newrefreshToken = await RefreshToken.create({username:newUser.username,token:refreshToken})
+  const refreshToken = getRefreshToken(newUser.username)
+
+  const newrefreshToken = await RefreshToken.create({ username: newUser.username, token: refreshToken })
   res.status(200).json({
     success: "success",
-   
+    message: "The User is created successfully!",
     ddata: {
       accessToken: token,
       refreshToken,
@@ -68,38 +66,36 @@ exports.signup = catchAsync(async (req, res, next) => {
       _id: newUser._id,
       username: newUser.username,
       gender: newUser.gender,
-      email:newUser.email,
+      email: newUser.email,
       createdAt: newUser.createdAt,
       updatedAt: newUser.updatedAt,
     },
   });
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+const login = catchAsync(async (req, res, next) => {
   console.log("-------------------++")
   const { username, password } = req.body;
   if (!username || !password) {
     return next(new AppErorr("username and password must be provided!", 401));
   }
-  console.log("-------------------++",2)
 
 
   const user = await User.findOne({ username: username }).select("+password");
-  console.log("----------,",user)
+  console.log("----------,", user)
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppErorr("Incorrect username or password", 401));
   }
 
-  
+
   const token = getToken(user.username);
   const refreshToken = getRefreshToken(user.username)
-  // const refreshToken = getRefreshToken(user._id)
-  const updateRefreshToken = await RefreshToken.findOneAndUpdate({username:username},{token:refreshToken})
+  const updateRefreshToken = await RefreshToken.findOneAndUpdate({ username: username }, { token: refreshToken })
 
   res.status(200).json({
     status: "succes",
-    
+
     data: {
       accessToken: token,
       refreshToken,
@@ -107,14 +103,16 @@ exports.login = catchAsync(async (req, res, next) => {
       _id: user._id,
       username: user.username,
       gender: user.gender,
-      email:user.email,
+      email: user.email,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     },
   });
 });
 
-exports.protect = catchAsync(async (req, res, next) => {
+
+
+const protect = catchAsync(async (req, res, next) => {
   //check if there is a token
   let token;
   if (
@@ -131,7 +129,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.ACCESS_TOKEN_SECRET);
 
   // check if the user still exixst
-  const freshUser = await User.findOne({username:decoded.name});
+  const freshUser = await User.findOne({ username: decoded.name });
   if (!freshUser) {
     return next(new AppErorr("the user is does not exist", 401));
   }
@@ -148,93 +146,321 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-// exports.restricTo = (...roles) => {
-//   return (req, res, next) => {
-//     //roles ['admin','user']
-//     if (!roles.includes(req.user.role)) {
-//       return next(
-//         new AppErorr("You do not have permission to perform this Action", 403)
-//       );
-//     }
 
-//     next();
-//   };
-// };
+
+const getRoles = catchAsync(async (req, res, next) => {
+  
+  const role = await Role.find()
+  res.status(201).json({
+    status: "success",
+    message: "The Role is created successfully!",
+    data:role
+
+  })
+});
+
+
+// add Role
+const addRole = catchAsync(async (req, res, next) => {
+  const { name } = req.body;
+  if (!name) {
+    return next(
+      new AppErorr("name is require.", 400)
+    );
+  }
+  const role = await Role.create({ role_name: name })
+  res.status(201).json({
+    status: "success",
+    message: "The Role is created successfully!",
+
+  })
+});
+
+
+
+// edit Role
+const editRole = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  
+  const role = await Role.findByIdAndUpdate(id,req.bosy,{new:true})
+  if (!role) {
+    return next(new AppErorr('role is not found!', 404))
+  }
+  console.log(role)
+  res.status(201).json({
+    status: "success",
+    message: "The Role is created successfully!",
+    role
+
+  })
+});
+
+
+
+// delete Role
+const deleteRole = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+
+  const role = await Role.findByIdAndDelete(id)
+  if (!role) {
+    return next(new AppErorr('role is not found!', 404))
+  }
+  res.status(204).json({
+    status: "success",
+    message: "The Role is deleted successfully!",
+
+  })
+});
+
+
+
+
+// add permission
+const addPermission = catchAsync(async (req, res, next) => {
+  const { name } = req.body;
+  if (!name) {
+    return next(
+      new AppErorr("name is require.", 400)
+    );
+  }
+  const permission = await Permission.create({ perm_name: name })
+  res.status(201).json({
+    status: "success",
+    message: "The Permission is created successfully!",
+
+  })
+});
+// edit Permission
+const editPermission = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  
+  const permission = await Permission.findByIdAndUpdate(id,req.bosy,{new:true})
+  if (!permission) {
+    return next(new AppErorr('permission is not found!', 404))
+  }
+  res.status(201).json({
+    status: "success",
+    message: "The Permission is created successfully!",
+
+  })
+});
+
+
+
+// delete Permission
+const deletePermission = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+
+  const permission = await Permission.findByIdAndDelete(id)
+  if (!permission) {
+    return next(new AppErorr('permission is not found!', 404))
+  }
+  res.status(204).json({
+    status: "success",
+    message: "The Permission is deleted successfully!",
+
+  })
+});
+
+
+// add user in to a group
+const addUserToGroup = catchAsync(async (req, res, next) => {
+  const { userIds, id } = req.body;
+  console.log("******////////*****************",req.body)
+  const group = await Role.findById({ _id: id });
+  if (!group) {
+    return next(new AppErorr('Group is not found!', 404))
+  }
+
+  for (let userId of userIds) {
+
+    await User.findByIdAndUpdate(userId, { $addToSet: { roles: group._id } }, {
+      new: true,
+    })
+  }
+  res.status(201).json({
+    status: "success",
+    message: "The Users is added successfully!",
+
+  })
+});
+// add user in to a group
+const deleteUserToGroup = catchAsync(async (req, res, next) => {
+  const { userIds, id } = req.body;
+  const group = await Role.findById({ _id: id });
+  if (!group) {
+    return next(new AppErorr('Group is not found!', 404))
+  }
+
+  for (let userId of userIds) {
+
+    await User.findByIdAndUpdate(userId, { $pull: { roles: group._id } }, {
+      new: true,
+    })
+  }
+  res.status(201).json({
+    status: "success",
+    message: "The Users is added successfully!",
+
+  })
+});
+
+
+
+//  addRolePermission
+const addRolePermission = catchAsync(async (req, res, next) => {
+  const {id, type, perm_id, read,update,create,destroy} = req.body;
+
+  if (type == "user") {
+    
+    const user = await User.findById(id);
+    if (!user) {
+      return next(new AppErorr("There is not user in this ID", 404));
+    }
+    const role = await Role.create({ role_name: user.username })
+    user.roles = [...user.roles, role._id]
+    await user.save();
+
+    const rolePermission = await RolePermission.create({
+      permission: perm_id,
+      role: role._id,
+      create:create,
+      read:read, 
+      update:update, 
+      delete:destroy
+
+      });
+  } else {
+    const group = await Role.findById(id);
+    if (!group) {
+      return next(new AppErorr("There is not group in this ID", 404));
+    }
+
+
+    const rolePermission = await RolePermission.create({
+      permission: perm_id,
+      role: group._id,
+      create:create,
+      read:read, 
+      update:update, 
+      delete:destroy
+
+      });
+
+  }
+  res.status(201).json({
+    status: "success",
+    message: "The rolePermission is created successfully!",
+
+  })
+});
+
+
+// update RolePermission
+const updateRolePermission = catchAsync(async (req, res, next) => {
+  const {id} = req.params;
+
+  
+    const rolePermission = await RolePermission.findById(id,req.body,{new:true});
+    // if (!rolePermission) {
+    //   return next(new AppErorr("There is not rolePermission in this ID", 404));
+    // }
+
+   
+  
+  res.status(201).json({
+    status: "success",
+    message: "The rolePermission is created successfully!",
+    data:rolePermission
+
+  })
+});
+
+
+
+
+
 
 //role and permmision baseed
-exports.restricTo = ( permissionName,arr ) => {
+const restricTo = (permissionName, arr) => {
   return catchAsync(async (req, res, next) => {
 
-    const user =await req.user.populate('roles');
+    const user = await req.user.populate('roles'); // d ,a
 
-    for (let role of user.roles){
-      const rolePermission = await RolePermission.find({role:role._id}).populate('permission');
-      console.log("------------------------------",rolePermission)
+    for (let role of user.roles) {
+      const rolePermission = await RolePermission.find({ role: role._id }).populate('permission');
 
-      if (!rolePermission){
-        return next(
-          new AppErorr('you have not this permmision',403)
-        );
+      console.log("------------------------------", rolePermission)
+
+      if (!rolePermission) {
+        rolePermission = []
       }
 
 
-      const hasRequiredPermission = rolePermission.some((rp)=>{
-        
-        if(rp.permission.perm_name == permissionName){
-          const check = {
-            read:rp.read,
-            create:rp.create,
-            update:rp.update,
-            delete:rp.delete
-          }
-         
+      const hasRequiredPermission = rolePermission.some((rp) => {
 
-          for (let i of arr){
+        if (rp.permission.perm_name == permissionName) {
+          const check = {
+            read: rp.read,
+            create: rp.create,
+            update: rp.update,
+            delete: rp.delete
+          }
+
+
+          for (let i of arr) {
             console.log(check)
 
-            console.log("------------------------------",check[i])
-            if (!check[i]){
+            console.log("------------------------------", check[i])
+            if (!check[i]) {
+              console.log("booooooooooooooooooooooom")
               return false
             }
 
 
-              
+
           }
           return true
-        }else{
+        } else {
           return false
         }
       })
 
-      console.log('**************************',hasRequiredPermission)
+      console.log('**************************', hasRequiredPermission)
 
-      if( hasRequiredPermission){
-      return   next();
+      if (hasRequiredPermission) {
+        return next();
       }
 
 
     }
-    // console.log("------------------------------",(await user.populate('roles')))
 
-    // const permission = await Permission.findOne({
-    //   where: { perm_name: permissionName },
-    // });
-    // if (!permission) {
-    //   return next(
-    //     new AppError("You do not have permission to perform this Action", 403)
-    //   );
-    // }
-    // const rolePerm = await RolePermission.findOne({
-    //   where: { RoleId: req.user.RoleId, PermissionId: permission.id },
-    // });
-    // if (!rolePerm) {
-    //   return next(
-    //     new AppError("You do not have permission to perform this Action", 403)
-    //   );
-    // }
     return next(
-      new AppErorr('you have not this permmision',403)
+      new AppErorr('you have not this permmision', 403)
     );
-    
+
   });
 };
+
+
+
+module.exports = {
+  refreshToken,
+  signup,
+  login,
+  protect,
+  getRoles,
+  addRole,
+  editRole,
+  deleteRole,
+  addPermission,
+  editPermission,
+  deletePermission,
+  addUserToGroup,
+  deleteUserToGroup,
+  addRolePermission,
+  updateRolePermission,
+  restricTo
+}

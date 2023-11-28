@@ -1,12 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
+
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const app = express();
 const AppErorr = require('./utils/appError')
 const { errHandling } = require("./utils/errorController");
 
+const app = express();
 
 // ********** routing import
 const authRouter = require('./routes/auth/auth.router')
@@ -25,7 +26,8 @@ app.use(express.json());
 const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 app.use(morgan('combined',{stream:logStream}));
-
+// app.use(morgan.successHandler);
+// app.use(morgan.errorHandler);
 
 // use routes using middleware
 
